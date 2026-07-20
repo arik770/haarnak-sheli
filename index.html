@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="הארנק שלי">
+  <meta name="theme-color" content="#0d0f1a" id="theme-color-meta">
+  <title>הארנק שלי</title>
+
+  <!-- App icon for home screen -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KICA8cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjQwIiBmaWxsPSIjMWExZjNhIi8+CiAgPHJlY3QgeD0iMjgiIHk9IjYwIiB3aWR0aD0iMTM2IiBoZWlnaHQ9IjkwIiByeD0iMTQiIGZpbGw9IiMyZTNhNmUiLz4KICA8cmVjdCB4PSIyOCIgeT0iODQiIHdpZHRoPSIxMzYiIGhlaWdodD0iMjgiIGZpbGw9IiMzZDVhZmUiIG9wYWNpdHk9IjAuODUiLz4KICA8cmVjdCB4PSI0MCIgeT0iMTE2IiB3aWR0aD0iNDQiIGhlaWdodD0iMTAiIHJ4PSI1IiBmaWxsPSIjNDNkNjhlIiBvcGFjaXR5PSIwLjkiLz4KICA8cmVjdCB4PSIxNDAiIHk9IjQ4IiB3aWR0aD0iMjQiIGhlaWdodD0iMTQiIHJ4PSI0IiBmaWxsPSIjNDNkNjhlIiBvcGFjaXR5PSIwLjciLz4KICA8Y2lyY2xlIGN4PSIxNDgiIGN5PSIxMTYiIHI9IjEwIiBmaWxsPSIjYTc4YmZhIiBvcGFjaXR5PSIwLjg1Ii8+CiAgPGNpcmNsZSBjeD0iMTYyIiBjeT0iMTE2IiByPSIxMCIgZmlsbD0iIzNkNWFmZSIgb3BhY2l0eT0iMC43Ii8+Cjwvc3ZnPg==">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KICA8cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjQwIiBmaWxsPSIjMWExZjNhIi8+CiAgPHJlY3QgeD0iMjgiIHk9IjYwIiB3aWR0aD0iMTM2IiBoZWlnaHQ9IjkwIiByeD0iMTQiIGZpbGw9IiMyZTNhNmUiLz4KICA8cmVjdCB4PSIyOCIgeT0iODQiIHdpZHRoPSIxMzYiIGhlaWdodD0iMjgiIGZpbGw9IiMzZDVhZmUiIG9wYWNpdHk9IjAuODUiLz4KICA8cmVjdCB4PSI0MCIgeT0iMTE2IiB3aWR0aD0iNDQiIGhlaWdodD0iMTAiIHJ4PSI1IiBmaWxsPSIjNDNkNjhlIiBvcGFjaXR5PSIwLjkiLz4KICA8cmVjdCB4PSIxNDAiIHk9IjQ4IiB3aWR0aD0iMjQiIGhlaWdodD0iMTQiIHJ4PSI0IiBmaWxsPSIjNDNkNjhlIiBvcGFjaXR5PSIwLjciLz4KICA8Y2lyY2xlIGN4PSIxNDgiIGN5PSIxMTYiIHI9IjEwIiBmaWxsPSIjYTc4YmZhIiBvcGFjaXR5PSIwLjg1Ii8+CiAgPGNpcmNsZSBjeD0iMTYyIiBjeT0iMTE2IiByPSIxMCIgZmlsbD0iIzNkNWFmZSIgb3BhY2l0eT0iMC43Ii8+Cjwvc3ZnPg==">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f1a;
+      --surface: #1e2130;
+      --surface2: #1a1f35;
+      --surface3: #111520;
+      --border: #2e3450;
+      --border-income: #1a4d32;
+      --border-expense: #3d1a1a;
+      --text: #e8eaf0;
+      --text-muted: #8892b0;
+      --text-dim: #667;
+      --text-dimmer: #334;
+      --green: #43d68e;
+      --red: #f05656;
+      --purple: #a78bfa;
+      --accent: #3d5afe;
+      --card-income-bg: linear-gradient(135deg,#0d2e1f,#132b1e);
+      --card-savings-bg: linear-gradient(135deg,#1a1228,#16112a);
+      --card-income-lbl: #43d68e88;
+      --card-income-border: #1a4d32;
+      --card-savings-lbl: #a78bfa88;
+      --card-savings-border: #2a1f48;
+      --filter-btn: #1a1f35;
+      --tag-bg: #111520;
+      --tag-color: #667;
+      --toggle-bg: #1a1f35;
+      --section-border: #1e2340;
+      --radio-color: #c0c8e0;
+      --recurring-box: #111520;
+      --modal-overlay: rgba(0,0,0,0.6);
+      --future-empty: #334;
+    }
+
+    body.light {
+      --bg: #f0f2fa;
+      --surface: #ffffff;
+      --surface2: #f5f7ff;
+      --surface3: #e8ebf8;
+      --border: #cdd3f0;
+      --border-income: #a8dfc0;
+      --border-expense: #f0b8b8;
+      --text: #1a1d2e;
+      --text-muted: #5560a0;
+      --text-dim: #7880b0;
+      --text-dimmer: #aab2d0;
+      --green: #0a6e44;
+      --red: #bb2200;
+      --purple: #6030cc;
+      --card-income-bg: linear-gradient(135deg,#d8f5e8,#c0eed4);
+      --card-savings-bg: linear-gradient(135deg,#ece4ff,#dbd0ff);
+      --card-income-lbl: #0a6e44;
+      --card-income-border: #a8dfc0;
+      --card-savings-lbl: #6030cc;
+      --card-savings-border: #c0acf0;
+      --filter-btn: #e8ebf8;
+      --tag-bg: #e8ebf8;
+      --tag-color: #7880b0;
+      --toggle-bg: #e8ebf8;
+      --section-border: #cdd3f0;
+      --radio-color: #3a4070;
+      --recurring-box: #e8ebf8;
+      --modal-overlay: rgba(40,50,100,0.3);
+      --future-empty: #aab2d0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      direction: rtl;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      padding-bottom: env(safe-area-inset-bottom);
+      transition: background 0.25s, color 0.25s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app { max-width: 680px; margin: 0 auto; padding: 0 16px 100px; }
+
+    /* ── Header ── */
+    .header {
+      padding: 20px 0 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: max(20px, env(safe-area-inset-top, 20px));
+    }
+    .header h1 { font-size: 20px; font-weight: 700; }
+    .header-right { display: flex; gap: 10px; align-items: center; }
+
+    /* ── Buttons ── */
+    button { font-family: inherit; cursor: pointer; }
+    .btn-theme {
+      background: var(--toggle-bg); border: 1px solid var(--border);
+      border-radius: 20px; padding: 5px 13px;
+      color: var(--text-muted); font-size: 13px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .btn-settings {
+      background: none; border: none; font-size: 18px; color: var(--text-dim);
+    }
+    .btn-primary {
+      width: 100%; padding: 13px; border-radius: 12px; border: none;
+      background: linear-gradient(90deg,#3d5afe,#5c35e8); color: #fff;
+      font-size: 15px; font-weight: 700;
+      box-shadow: 0 4px 20px rgba(61,90,254,0.25);
+      margin-bottom: 18px;
+    }
+    .btn-save {
+      flex: 1; padding: 12px; border-radius: 8px; border: none;
+      background: #3d5afe; color: #fff; font-size: 15px; font-weight: 700;
+    }
+    .btn-cancel {
+      padding: 12px 20px; border-radius: 8px;
+      border: 1px solid var(--border); background: none;
+      color: var(--text-muted); font-size: 14px;
+    }
+
+    /* ── Cards ── */
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .card { border-radius: 14px; padding: 18px; }
+    .card-income { background: var(--card-income-bg); border: 1px solid var(--card-income-border); }
+    .card-savings { background: var(--card-savings-bg); border: 1px solid var(--card-savings-border); }
+    .card-label { font-size: 11px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+    .card-income .card-label { color: var(--card-income-lbl); }
+    .card-savings .card-label { color: var(--card-savings-lbl); }
+    .card-value { font-size: 24px; font-weight: 800; }
+
+    /* ── Monthly bar ── */
+    .monthly-bar {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px; margin-bottom: 14px;
+      display: flex; justify-content: space-around; align-items: center;
+    }
+    .monthly-bar-item { text-align: center; }
+    .monthly-bar-lbl { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+    .monthly-bar-val { font-size: 16px; font-weight: 700; }
+    .monthly-bar-div { width: 1px; height: 36px; background: var(--border); }
+
+    /* ── Filter ── */
+    .filter { display: flex; gap: 8px; margin-bottom: 14px; }
+    .btn-filter {
+      padding: 7px 16px; border-radius: 20px; border: none;
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      background: var(--filter-btn);
+    }
+    .btn-filter.active { background: #3d5afe; color: #fff; }
+
+    /* ── Items list ── */
+    .items-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .empty-hint { text-align: center; color: var(--text-dimmer); padding: 40px 0; font-size: 14px; }
+    .item-card {
+      background: var(--surface2); border-radius: 12px; padding: 14px 16px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .item-card.income { border: 1px solid var(--border-income); }
+    .item-card.expense { border: 1px solid var(--border-expense); }
+    .item-left { flex: 1; min-width: 0; }
+    .item-title { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+    .item-name { font-weight: 600; font-size: 15px; }
+    .item-tag {
+      font-size: 11px; background: var(--tag-bg); color: var(--tag-color);
+      border-radius: 6px; padding: 2px 7px;
+    }
+    .item-meta { display: flex; gap: 10px; font-size: 12px; color: var(--text-dim); flex-wrap: wrap; }
+    .item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; margin-right: 10px; }
+    .item-amount { font-size: 17px; font-weight: 700; white-space: nowrap; }
+    .item-actions { display: flex; gap: 8px; }
+    .btn-icon { background: none; border: none; font-size: 16px; padding: 0; }
+
+    /* ── Section title ── */
+    .section-head {
+      border-top: 1px solid var(--section-border); padding-top: 20px; margin-bottom: 14px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .section-head h2 { font-size: 16px; color: var(--text-muted); font-weight: 600; }
+    .btn-add-window {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--purple); border-radius: 8px; padding: 7px 14px; font-size: 13px;
+    }
+
+    /* ── Future windows grid ── */
+    .future-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .future-card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px;
+    }
+    .future-card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .future-label { font-size: 13px; color: var(--text-muted); }
+    .future-date { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; }
+    .future-amount { font-size: 21px; font-weight: 700; }
+    .future-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+    .future-recurring-tag {
+      margin-top: 8px; font-size: 11px; color: var(--text-muted);
+      background: var(--surface3); border-radius: 6px; padding: 3px 8px; display: inline-block;
+    }
+    .future-empty { grid-column: 1/-1; text-align: center; color: var(--future-empty); padding: 28px 0; font-size: 13px; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: var(--modal-overlay);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; padding: 16px;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; width: 100%; max-width: 460px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-head h2 { font-size: 18px; }
+    .btn-close { background: none; border: none; color: var(--text-muted); font-size: 22px; line-height: 1; }
+
+    /* ── Form ── */
+    .form-row { margin-bottom: 14px; }
+    .form-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    label.form-lbl { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; }
+    input, select, textarea {
+      width: 100%; background: var(--surface3); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); padding: 9px 12px; font-size: 14px;
+      font-family: inherit; direction: rtl;
+      -webkit-appearance: none; appearance: none;
+    }
+    input[type=number] { -moz-appearance: textfield; }
+    input:focus, select:focus { outline: 2px solid #3d5afe; }
+    select option { background: var(--surface); }
+    .type-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+    .btn-type {
+      flex: 1; padding: 10px; border-radius: 8px; border: none;
+      font-weight: 600; font-size: 14px; background: var(--surface3); color: var(--text-muted);
+    }
+    .btn-type.income.active { background: #0d7a4e; color: #fff; }
+    .btn-type.expense.active { background: #8b1a1a; color: #fff; }
+    .recurring-box {
+      background: var(--recurring-box); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px; margin-bottom: 14px;
+    }
+    .radio-row { display: flex; gap: 16px; margin: 8px 0 12px; }
+    .radio-lbl { display: flex; align-items: center; gap: 6px; color: var(--radio-color); font-size: 13px; cursor: pointer; }
+    .form-actions { display: flex; gap: 10px; margin-top: 6px; }
+    .checkbox-lbl { display: flex; align-items: center; gap: 8px; color: var(--radio-color); font-size: 14px; cursor: pointer; }
+    input[type=checkbox], input[type=radio] { width: auto; }
+
+    /* ── Setup screen ── */
+    .setup-wrap {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .setup-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px; width: 100%; max-width: 400px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+    }
+    .setup-top { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+    .setup-hero { text-align: center; margin-bottom: 28px; }
+    .setup-icon { font-size: 48px; margin-bottom: 8px; }
+    .setup-hero h1 { font-size: 22px; }
+    .setup-hero p { color: var(--text-muted); font-size: 13px; margin-top: 8px; }
+    .setup-input {
+      width: 100%; background: var(--surface3); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); padding: 12px 14px; font-size: 16px;
+      font-family: inherit; direction: rtl; -webkit-appearance: none;
+    }
+    .setup-input:focus { outline: 2px solid #3d5afe; }
+
+    /* ── Colors ── */
+    .c-green { color: var(--green); }
+    .c-red { color: var(--red); }
+    .c-purple { color: var(--purple); }
+    .c-accent { color: var(--accent); }
+    .c-muted { color: var(--text-muted); }
+
+    @media (max-width: 380px) {
+      .future-grid { grid-template-columns: 1fr; }
+      .form-grid2 { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ SETUP SCREEN ══════════════════════════════════════════════════════════ -->
+<div id="setup-screen">
+  <div class="setup-wrap">
+    <div class="setup-card">
+      <div class="setup-top">
+        <button class="btn-theme" onclick="toggleTheme()">
+          <span id="theme-icon-setup">☀️</span>
+        </button>
+      </div>
+      <div class="setup-hero">
+        <div class="setup-icon">💳</div>
+        <h1>ניהול כספים אישי</h1>
+        <p>הכנס את היתרה הנוכחית שלך להתחלה</p>
+      </div>
+      <div class="form-row">
+        <label class="form-lbl">יתרה בעו"ש (₪)</label>
+        <input class="setup-input" id="init-balance" type="number" step="0.01" placeholder="0.00">
+      </div>
+      <div class="form-row" style="margin-bottom:24px">
+        <label class="form-lbl">חיסכון / תוכנית חיסכון (₪) — אופציונלי</label>
+        <input class="setup-input" id="init-savings" type="number" step="0.01" placeholder="0.00">
+      </div>
+      <button class="btn-primary" style="margin-bottom:0" onclick="finishSetup()">התחל לנהל</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ═══════════════════════════════════════════════════════════════ -->
+<div id="main-screen" class="hidden" style="display:none">
+  <div class="app">
+
+    <!-- Header -->
+    <div class="header">
+      <h1>💳 הארנק שלי</h1>
+      <div class="header-right">
+        <button class="btn-theme" onclick="toggleTheme()">
+          <span id="theme-icon-main">☀️</span>
+        </button>
+        <button class="btn-settings" onclick="goSetup()" title="עדכן יתרה">⚙️</button>
+      </div>
+    </div>
+
+    <!-- Balance cards -->
+    <div class="cards">
+      <div class="card card-income">
+        <div class="card-label">יתרה בעו"ש</div>
+        <div class="card-value" id="disp-balance">₪0.00</div>
+      </div>
+      <div class="card card-savings">
+        <div class="card-label">חיסכון</div>
+        <div class="card-value c-purple" id="disp-savings">₪0.00</div>
+      </div>
+    </div>
+
+    <!-- Monthly bar -->
+    <div class="monthly-bar">
+      <div class="monthly-bar-item">
+        <div class="monthly-bar-lbl">הכנסה חודשית</div>
+        <div class="monthly-bar-val c-green" id="disp-income">₪0.00</div>
+      </div>
+      <div class="monthly-bar-div"></div>
+      <div class="monthly-bar-item">
+        <div class="monthly-bar-lbl">הוצאה חודשית</div>
+        <div class="monthly-bar-val c-red" id="disp-expense">₪0.00</div>
+      </div>
+      <div class="monthly-bar-div"></div>
+      <div class="monthly-bar-item">
+        <div class="monthly-bar-lbl">מאזן חודשי</div>
+        <div class="monthly-bar-val" id="disp-monthly-net">₪0.00</div>
+      </div>
+    </div>
+
+    <!-- Add button -->
+    <button class="btn-primary" onclick="openItemModal()">+ הוסף הכנסה / הוצאה</button>
+
+    <!-- Filter -->
+    <div class="filter">
+      <button class="btn-filter active" data-filter="all" onclick="setFilter('all')">הכל</button>
+      <button class="btn-filter" data-filter="income" onclick="setFilter('income')">הכנסות</button>
+      <button class="btn-filter" data-filter="expense" onclick="setFilter('expense')">הוצאות</button>
+    </div>
+
+    <!-- Items list -->
+    <div class="items-list" id="items-list"></div>
+
+    <!-- Future windows -->
+    <div class="section-head">
+      <h2>🔮 תחזיות עתידיות</h2>
+      <button class="btn-add-window" onclick="openWinModal()">+ הוסף חלון</button>
+    </div>
+    <div class="future-grid" id="future-grid"></div>
+
+  </div>
+</div>
+
+<!-- ══ ITEM MODAL ════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="item-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2 id="item-modal-title">הוסף פריט</h2>
+      <button class="btn-close" onclick="closeItemModal()">✕</button>
+    </div>
+    <div class="type-toggle">
+      <button class="btn-type income active" id="type-income" onclick="setType('income')">💰 הכנסה</button>
+      <button class="btn-type expense" id="type-expense" onclick="setType('expense')">💸 הוצאה</button>
+    </div>
+    <div class="form-row">
+      <label class="form-lbl">תיאור (אופציונלי)</label>
+      <input id="f-desc" type="text" placeholder="למשל: משכורת, שכר דירה...">
+    </div>
+    <div class="form-grid2">
+      <div>
+        <label class="form-lbl">קטגוריה</label>
+        <select id="f-cat"></select>
+      </div>
+      <div>
+        <label class="form-lbl">סכום (₪)</label>
+        <input id="f-amount" type="number" min="0" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+    <div class="form-grid2">
+      <div>
+        <label class="form-lbl">תאריך</label>
+        <input id="f-date" type="date">
+      </div>
+      <div>
+        <label class="form-lbl">תדירות</label>
+        <select id="f-freq" onchange="toggleRecurring()">
+          <option value="once">חד פעמי</option>
+          <option value="daily">יומי</option>
+          <option value="weekly">שבועי</option>
+          <option value="biweekly">דו שבועי</option>
+          <option value="monthly">חודשי</option>
+          <option value="bimonthly">דו חודשי</option>
+          <option value="yearly">שנתי</option>
+        </select>
+      </div>
+    </div>
+    <div class="recurring-box" id="recurring-box" style="display:none">
+      <label class="form-lbl">עיתוי חוזר</label>
+      <div class="radio-row">
+        <label class="radio-lbl"><input type="radio" name="flex" value="fixed" checked onchange="toggleDayField()"> יום קבוע בחודש</label>
+        <label class="radio-lbl"><input type="radio" name="flex" value="flex" onchange="toggleDayField()"> תאריך גמיש</label>
+      </div>
+      <div id="day-field">
+        <label class="form-lbl">יום בחודש (1–28)</label>
+        <input id="f-day" type="number" min="1" max="28" placeholder="למשל: 10" style="width:90px">
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-lbl">הערות (אופציונלי)</label>
+      <input id="f-notes" type="text" placeholder="הערה חופשית...">
+    </div>
+    <div class="form-actions">
+      <button class="btn-save" onclick="saveItem()">שמור</button>
+      <button class="btn-cancel" onclick="closeItemModal()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WINDOW MODAL ══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="win-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2 id="win-modal-title">הוסף חלון תחזית</h2>
+      <button class="btn-close" onclick="closeWinModal()">✕</button>
+    </div>
+    <div class="form-row">
+      <label class="form-lbl">שם החלון</label>
+      <input id="w-label" type="text" placeholder='למשל: "סוף השנה", "חופשה"'>
+    </div>
+    <div class="form-row">
+      <label class="form-lbl">תאריך</label>
+      <input id="w-date" type="date">
+    </div>
+    <div class="form-row">
+      <label class="checkbox-lbl"><input type="checkbox" id="w-recurring"> חלון חוזר כל חודש</label>
+    </div>
+    <div class="form-actions">
+      <button class="btn-save" onclick="saveWindow()">שמור</button>
+      <button class="btn-cancel" onclick="closeWinModal()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════════════════════════
+const STORAGE_KEY  = 'finance_app_data_v1';
+const THEME_KEY    = 'finance_app_theme_v1';
+
+const CATS = {
+  income:  ['משכורת','פרילנס','שכר דירה','השקעות','מתנה','אחר'],
+  expense: ['דיור','מזון','תחבורה','בריאות','רפואי','בידור','נופש','קניות','חיסכון','ביטוח','חינוך','בית כנסת','תרומה','אחר'],
+};
+
+let appData = { initialBalance: 0, initialSavings: 0, items: [], futureWindows: [] };
+let isDark  = true;
+let currentFilter = 'all';
+let editItemId = null;
+let editWinId  = null;
+let currentType = 'expense';
+
+function loadAll() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) appData = JSON.parse(raw);
+  } catch(e) {}
+  isDark = (localStorage.getItem(THEME_KEY) || 'dark') === 'dark';
+}
+
+function saveAll() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e) {}
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// THEME
+// ════════════════════════════════════════════════════════════════════════════
+function applyTheme() {
+  document.body.classList.toggle('light', !isDark);
+  const icon = isDark ? '☀️' : '🌙';
+  ['setup','main'].forEach(id => {
+    const i = document.getElementById(`theme-icon-${id}`);
+    if (i) i.textContent = icon;
+  });
+  const meta = document.getElementById('theme-color-meta');
+  if (meta) meta.setAttribute('content', isDark ? '#0d0f1a' : '#f0f2fa');
+}
+
+function toggleTheme() {
+  isDark = !isDark;
+  localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+  applyTheme();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// SETUP
+// ════════════════════════════════════════════════════════════════════════════
+function showSetup() {
+  document.getElementById('setup-screen').style.display = '';
+  document.getElementById('main-screen').style.display = 'none';
+  document.getElementById('init-balance').value = appData.initialBalance || '';
+  document.getElementById('init-savings').value = appData.initialSavings || '';
+}
+
+function finishSetup() {
+  appData.initialBalance = parseFloat(document.getElementById('init-balance').value) || 0;
+  appData.initialSavings = parseFloat(document.getElementById('init-savings').value) || 0;
+  saveAll();
+  showMain();
+}
+
+function goSetup() { showSetup(); }
+
+function showMain() {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('main-screen').style.display = '';
+  renderAll();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// CALCULATIONS
+// ════════════════════════════════════════════════════════════════════════════
+function getMonthlyAmt(item) {
+  const a = parseFloat(item.amount) || 0;
+  switch(item.frequency) {
+    case 'daily':    return a * 30;
+    case 'weekly':   return a * 4.33;
+    case 'biweekly': return a * 2.165;
+    case 'monthly':  return a;
+    case 'bimonthly':return a / 2;
+    case 'yearly':   return a / 12;
+    default: return 0;
+  }
+}
+
+function calcBalance() {
+  let bal = appData.initialBalance;
+  let sav = appData.initialSavings;
+  let mi = 0, me = 0;
+  for (const item of appData.items) {
+    const sign = item.type === 'income' ? 1 : -1;
+    const amt  = parseFloat(item.amount) || 0;
+    if (item.frequency === 'once') {
+      if (item.type === 'expense' && item.category === 'חיסכון') {
+        bal -= amt;
+        sav += amt;
+      } else {
+        bal += sign * amt;
+      }
+    }
+    const m = getMonthlyAmt(item);
+    if (item.type === 'income') mi += m; else me += m;
+  }
+  return { balance: Math.round(bal*100)/100, savings: Math.round(sav*100)/100, monthlyIncome: mi, monthlyExpense: me };
+}
+
+function projectBalance(targetDate) {
+  const today  = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(targetDate); target.setHours(0,0,0,0);
+  if (target <= today) return null;
+  const { balance: curBal } = calcBalance();
+  let bal = curBal;
+  for (const item of appData.items) {
+    if (item.frequency === 'once') continue;
+    const sign = item.type === 'income' ? 1 : -1;
+    const amt  = parseFloat(item.amount) || 0;
+    const msDay = 86400000;
+    let ivDays;
+    switch(item.frequency) {
+      case 'daily':    ivDays=1; break;
+      case 'weekly':   ivDays=7; break;
+      case 'biweekly': ivDays=14; break;
+      case 'monthly':  ivDays=30.44; break;
+      case 'bimonthly':ivDays=60.88; break;
+      case 'yearly':   ivDays=365.25; break;
+      default: ivDays=0;
+    }
+    if (ivDays > 0) {
+      const itemDate = new Date(item.date); itemDate.setHours(0,0,0,0);
+      const startFrom = itemDate > today ? itemDate : new Date(today.getTime() + msDay);
+      const daysRange = (target - startFrom) / msDay;
+      if (daysRange >= 0) {
+        const count = Math.floor(daysRange / ivDays) + 1;
+        bal += sign * amt * count;
+      }
+    }
+  }
+  return Math.round(bal * 100) / 100;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// FORMAT
+// ════════════════════════════════════════════════════════════════════════════
+function fmt(n) {
+  return '₪' + Number(n).toLocaleString('he-IL', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtDate(d) {
+  if (!d) return '';
+  return new Date(d).toLocaleDateString('he-IL');
+}
+const FREQ_LABELS = {once:'חד פעמי',daily:'יומי',weekly:'שבועי',biweekly:'דו שבועי',monthly:'חודשי',bimonthly:'דו חודשי',yearly:'שנתי'};
+
+// ════════════════════════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════════════════════════
+function renderAll() {
+  const { balance, savings, monthlyIncome, monthlyExpense } = calcBalance();
+  const net = monthlyIncome - monthlyExpense;
+
+  const balEl = document.getElementById('disp-balance');
+  balEl.textContent = fmt(balance);
+  balEl.className   = 'card-value ' + (balance >= 0 ? 'c-green' : 'c-red');
+
+  document.getElementById('disp-savings').textContent = fmt(savings);
+  document.getElementById('disp-income').textContent  = '+' + fmt(monthlyIncome);
+  document.getElementById('disp-expense').textContent = '-' + fmt(monthlyExpense);
+
+  const netEl = document.getElementById('disp-monthly-net');
+  netEl.textContent = (net >= 0 ? '+' : '') + fmt(net);
+  netEl.className   = 'monthly-bar-val ' + (net >= 0 ? 'c-green' : 'c-red');
+
+  renderItems();
+  renderFutureWindows();
+}
+
+function renderItems() {
+  const list = document.getElementById('items-list');
+  const filtered = appData.items.filter(i => currentFilter === 'all' || i.type === currentFilter);
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-hint">אין פריטים עדיין — הוסף הכנסה או הוצאה</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(item => {
+    const sign = item.type === 'income' ? '+' : '-';
+    const amtClass = item.type === 'income' ? 'c-green' : 'c-red';
+    const catTag = item.category ? `<span class="item-tag">${esc(item.category)}</span>` : '';
+    const recurMeta = item.frequency !== 'once'
+      ? (item.flexibleDate ? ' · תאריך גמיש' : (item.dayOfMonth ? ` · יום ${item.dayOfMonth} לחודש` : ''))
+      : '';
+    return `<div class="item-card ${item.type}">
+      <div class="item-left">
+        <div class="item-title">
+          <span>${item.type === 'income' ? '💰' : '💸'}</span>
+          <span class="item-name">${esc(item.description)}</span>
+          ${catTag}
+        </div>
+        <div class="item-meta">
+          <span>${fmtDate(item.date)}</span>
+          <span>${FREQ_LABELS[item.frequency] || ''}</span>
+          ${recurMeta ? `<span>${recurMeta.replace(' · ','')}</span>` : ''}
+        </div>
+      </div>
+      <div class="item-right">
+        <div class="item-amount ${amtClass}">${sign}${fmt(item.amount)}</div>
+        <div class="item-actions">
+          <button class="btn-icon c-accent" onclick="editItem('${item.id}')">✏️</button>
+          <button class="btn-icon c-red"    onclick="deleteItem('${item.id}')">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderFutureWindows() {
+  const grid = document.getElementById('future-grid');
+  if (!appData.futureWindows.length) {
+    grid.innerHTML = '<div class="future-empty">הוסף חלון תחזית לראות מה יהיה מצב החשבון בתאריך עתידי</div>';
+    return;
+  }
+  grid.innerHTML = appData.futureWindows.map(win => {
+    const proj = projectBalance(win.date);
+    const amtHtml = proj !== null
+      ? `<div class="future-amount ${proj >= 0 ? 'c-green' : 'c-red'}">${fmt(proj)}</div><div class="future-sub">יתרה משוערת</div>`
+      : '<div class="future-sub">בחר תאריך עתידי</div>';
+    const recurTag = win.recurring ? '<div class="future-recurring-tag">חוזר כל חודש</div>' : '';
+    return `<div class="future-card">
+      <div class="future-card-head">
+        <div>
+          <div class="future-label">${esc(win.label || 'תחזית')}</div>
+          <div class="future-date">${fmtDate(win.date)}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-icon c-accent" onclick="editWindow('${win.id}')">✏️</button>
+          <button class="btn-icon c-red"    onclick="deleteWindow('${win.id}')">🗑️</button>
+        </div>
+      </div>
+      ${amtHtml}
+      ${recurTag}
+    </div>`;
+  }).join('');
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// FILTER
+// ════════════════════════════════════════════════════════════════════════════
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.btn-filter').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderItems();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// ITEM MODAL
+// ════════════════════════════════════════════════════════════════════════════
+function openItemModal(id) {
+  editItemId = id || null;
+  const item = id ? appData.items.find(i => i.id === id) : null;
+  document.getElementById('item-modal-title').textContent = id ? 'ערוך פריט' : 'הוסף פריט';
+
+  currentType = item ? item.type : 'expense';
+  setType(currentType, true);
+
+  document.getElementById('f-desc').value   = item ? item.description : '';
+  document.getElementById('f-amount').value = item ? item.amount : '';
+  document.getElementById('f-date').value   = item ? item.date : new Date().toISOString().slice(0,10);
+  document.getElementById('f-freq').value   = item ? item.frequency : 'once';
+  document.getElementById('f-notes').value  = item ? (item.notes || '') : '';
+  document.getElementById('f-day').value    = item ? (item.dayOfMonth || '') : '';
+
+  // radio
+  const radios = document.querySelectorAll('input[name="flex"]');
+  radios.forEach(r => { r.checked = (r.value === (item && item.flexibleDate ? 'flex' : 'fixed')); });
+
+  toggleRecurring();
+  document.getElementById('item-modal').classList.remove('hidden');
+}
+
+function closeItemModal() {
+  document.getElementById('item-modal').classList.add('hidden');
+}
+
+function setType(type, silent) {
+  currentType = type;
+  document.getElementById('type-income').classList.toggle('active', type === 'income');
+  document.getElementById('type-expense').classList.toggle('active', type === 'expense');
+  fillCats(type);
+}
+
+function fillCats(type) {
+  const sel = document.getElementById('f-cat');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">בחר קטגוריה</option>' + CATS[type].map(c => `<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('');
+}
+
+function toggleRecurring() {
+  const isRecur = document.getElementById('f-freq').value !== 'once';
+  document.getElementById('recurring-box').style.display = isRecur ? '' : 'none';
+  if (isRecur) toggleDayField();
+}
+
+function toggleDayField() {
+  const isFlex = document.querySelector('input[name="flex"]:checked')?.value === 'flex';
+  document.getElementById('day-field').style.display = isFlex ? 'none' : '';
+}
+
+function saveItem() {
+  const desc   = document.getElementById('f-desc').value.trim();
+  const amount = parseFloat(document.getElementById('f-amount').value);
+  const date   = document.getElementById('f-date').value;
+  if (!amount || !date) return;
+
+  const freq      = document.getElementById('f-freq').value;
+  const flexed    = freq !== 'once' && document.querySelector('input[name="flex"]:checked')?.value === 'flex';
+  const dayOfMonth= document.getElementById('f-day').value;
+  const notes     = document.getElementById('f-notes').value.trim();
+  const category  = document.getElementById('f-cat').value;
+
+  const item = {
+    id: editItemId || String(Date.now()),
+    type: currentType, description: desc, category, amount, date,
+    frequency: freq, flexibleDate: flexed,
+    dayOfMonth: flexed ? '' : dayOfMonth, notes
+  };
+
+  if (editItemId) {
+    appData.items = appData.items.map(i => i.id === editItemId ? item : i);
+  } else {
+    appData.items.push(item);
+  }
+  saveAll(); closeItemModal(); renderAll();
+}
+
+function deleteItem(id) {
+  appData.items = appData.items.filter(i => i.id !== id);
+  saveAll(); renderAll();
+}
+
+function editItem(id) { openItemModal(id); }
+
+// ════════════════════════════════════════════════════════════════════════════
+// WINDOW MODAL
+// ════════════════════════════════════════════════════════════════════════════
+function openWinModal(id) {
+  editWinId = id || null;
+  const win = id ? appData.futureWindows.find(w => w.id === id) : null;
+  document.getElementById('win-modal-title').textContent = id ? 'ערוך חלון תחזית' : 'הוסף חלון תחזית';
+  document.getElementById('w-label').value     = win ? (win.label || '') : '';
+  document.getElementById('w-date').value      = win ? win.date : '';
+  document.getElementById('w-recurring').checked = win ? !!win.recurring : false;
+  document.getElementById('win-modal').classList.remove('hidden');
+}
+
+function closeWinModal() {
+  document.getElementById('win-modal').classList.add('hidden');
+}
+
+function saveWindow() {
+  const date = document.getElementById('w-date').value;
+  if (!date) return;
+  const win = {
+    id: editWinId || String(Date.now()),
+    label: document.getElementById('w-label').value.trim(),
+    date, recurring: document.getElementById('w-recurring').checked
+  };
+  if (editWinId) {
+    appData.futureWindows = appData.futureWindows.map(w => w.id === editWinId ? win : w);
+  } else {
+    appData.futureWindows.push(win);
+  }
+  saveAll(); closeWinModal(); renderAll();
+}
+
+function deleteWindow(id) {
+  appData.futureWindows = appData.futureWindows.filter(w => w.id !== id);
+  saveAll(); renderAll();
+}
+
+function editWindow(id) { openWinModal(id); }
+
+// ════════════════════════════════════════════════════════════════════════════
+// CLOSE MODALS ON OVERLAY CLICK
+// ════════════════════════════════════════════════════════════════════════════
+document.getElementById('item-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeItemModal();
+});
+document.getElementById('win-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeWinModal();
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════════════════
+loadAll();
+applyTheme();
+
+const saved = localStorage.getItem(STORAGE_KEY);
+if (saved) {
+  showMain();
+} else {
+  showSetup();
+}
+</script>
+</body>
+</html>
