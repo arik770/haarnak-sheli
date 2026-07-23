@@ -289,6 +289,9 @@
     .c-accent { color: var(--accent); }
     .c-muted { color: var(--text-muted); }
 
+    .item-notes { font-size: 12px; color: var(--text-muted); margin-top: 3px; font-style: italic; }
+    .item-payment { display:inline-flex; align-items:center; gap:4px; font-size:11px; background:var(--surface3); color:var(--purple); border-radius:6px; padding:2px 7px; margin-top:3px; }
+
     @media (max-width: 380px) {
       .future-grid { grid-template-columns: 1fr; }
       .form-grid2 { grid-template-columns: 1fr; }
@@ -447,6 +450,18 @@
         <input id="f-day" type="number" min="1" max="28" placeholder="למשל: 10" style="width:90px">
       </div>
     </div>
+    <div class="form-row" id="payment-method-row">
+      <label class="form-lbl">דרך תשלום (אופציונלי)</label>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+        <label class="radio-lbl"><input type="checkbox" id="pm-auth"> הרשאה</label>
+        <label class="radio-lbl"><input type="checkbox" id="pm-standing"> הוראת קבע</label>
+        <label class="radio-lbl"><input type="checkbox" id="pm-credit" onchange="toggleInstallments()"> אשראי</label>
+      </div>
+    </div>
+    <div class="form-row" id="installments-row" style="display:none">
+      <label class="form-lbl">מספר תשלומים</label>
+      <input id="f-installments" type="number" min="1" max="120" placeholder="למשל: 12" style="width:110px">
+    </div>
     <div class="form-row">
       <label class="form-lbl">הערות (אופציונלי)</label>
       <input id="f-notes" type="text" placeholder="הערה חופשית...">
@@ -466,14 +481,21 @@
       <button class="btn-close" onclick="closeWinModal()">✕</button>
     </div>
     <div class="form-row">
+      <label class="form-lbl">סוג חלון</label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn-type active" id="wtype-forecast" onclick="setWinType('forecast')" style="flex:1;padding:8px;border-radius:8px;border:none;font-size:13px;font-weight:600;background:#3d5afe;color:#fff;cursor:pointer">📅 תחזית יתרה</button>
+        <button class="btn-type" id="wtype-summary" onclick="setWinType('summary')" style="flex:1;padding:8px;border-radius:8px;border:none;font-size:13px;font-weight:600;background:var(--surface3);color:var(--text-muted);cursor:pointer">📊 סיכום תשלומים</button>
+      </div>
+    </div>
+    <div class="form-row">
       <label class="form-lbl">שם החלון</label>
       <input id="w-label" type="text" placeholder='למשל: "סוף השנה", "חופשה"'>
     </div>
-    <div class="form-row">
+    <div id="w-date-row" class="form-row">
       <label class="form-lbl">תאריך</label>
       <input id="w-date" type="date">
     </div>
-    <div class="form-row">
+    <div id="w-recurring-row" class="form-row">
       <label class="checkbox-lbl"><input type="checkbox" id="w-recurring"> חלון חוזר כל חודש</label>
     </div>
     <div class="form-actions">
@@ -491,8 +513,8 @@ const STORAGE_KEY  = 'finance_app_data_v1';
 const THEME_KEY    = 'finance_app_theme_v1';
 
 const CATS = {
-  income:  ['משכורת','פרילנס','שכר דירה','השקעות','מתנה','אחר'],
-  expense: ['דיור','מזון','תחבורה','בריאות','רפואי','בידור','נופש','קניות','חיסכון','ביטוח','חינוך','בית כנסת','תרומה','אחר'],
+  income:  ['משכורת','פרילנס','שכר דירה','השקעות','מתנה','חיסכון','אחר'],
+  expense: ['דיור','מזון','תחבורה','בריאות','רפואי','בידור','נופש','קניות','חיסכון','ביטוח','חינוך','בית כנסת','תרומה','תשלום','אחר'],
 };
 
 let appData = { initialBalance: 0, initialSavings: 0, items: [], futureWindows: [] };
@@ -575,55 +597,170 @@ function getMonthlyAmt(item) {
   }
 }
 
+// How many installments have been paid as of asOfDate
+// First payment on item.date, then one per month
+function calcPaidInstallments(item, asOfDate) {
+  const total = item.installments || 0;
+  if (total <= 1) return 1;
+  const start = new Date(item.date); start.setHours(0,0,0,0);
+  const ref   = new Date(asOfDate);  ref.setHours(23,59,59,999);
+  if (ref < start) return 0;
+  // months elapsed since first payment date
+  const yDiff = ref.getFullYear() - start.getFullYear();
+  const mDiff = ref.getMonth()    - start.getMonth();
+  const dDiff = ref.getDate()     - start.getDate();
+  let monthsPassed = yDiff * 12 + mDiff;
+  if (dDiff < 0) monthsPassed--; // day hasn't come yet this month
+  const paid = monthsPassed + 1; // first payment counts as month 0
+  return Math.max(0, Math.min(paid, total));
+}
+
+function applyOnce(bal, sav, item, amt) {
+  if (item.type === 'expense' && item.category === 'חיסכון') {
+    return { bal: bal - amt, sav: sav + amt };
+  }
+  if (item.type === 'income' && item.category === 'חיסכון') {
+    return { bal: bal + amt, sav: sav - amt };
+  }
+  const sign = item.type === 'income' ? 1 : -1;
+  return { bal: bal + sign * amt, sav };
+}
+
 function calcBalance() {
+  const today = new Date();
   let bal = appData.initialBalance;
   let sav = appData.initialSavings;
   let mi = 0, me = 0;
+
   for (const item of appData.items) {
-    const sign = item.type === 'income' ? 1 : -1;
-    const amt  = parseFloat(item.amount) || 0;
+    const unitAmt = parseFloat(item.amount) || 0;
+
     if (item.frequency === 'once') {
-      if (item.type === 'expense' && item.category === 'חיסכון') {
-        bal -= amt;
-        sav += amt;
+      const itemDate = new Date(item.date); itemDate.setHours(0,0,0,0);
+      const todayStart = new Date(today); todayStart.setHours(0,0,0,0);
+      if (itemDate > todayStart) continue; // future — not counted yet
+
+      if (item.installments && item.installments > 1) {
+        // credit installments: count how many monthly payments have passed
+        const paid = calcPaidInstallments(item, today);
+        if (paid > 0) {
+          const res = applyOnce(bal, sav, item, unitAmt * paid);
+          bal = res.bal; sav = res.sav;
+        }
+        // add to monthly expense only if not fully paid
+        if (paid < item.installments) {
+          if (item.type === 'income') mi += unitAmt; else me += unitAmt;
+        }
       } else {
-        bal += sign * amt;
+        // simple once-off
+        const res = applyOnce(bal, sav, item, unitAmt);
+        bal = res.bal; sav = res.sav;
       }
+
+    } else {
+      // Recurring: count occurrences that have already passed
+      const itemDate = new Date(item.date); itemDate.setHours(0,0,0,0);
+      const todayEnd = new Date(today); todayEnd.setHours(23,59,59,999);
+      const msDay = 86400000;
+      let ivDays;
+      switch(item.frequency) {
+        case 'daily':    ivDays=1; break;
+        case 'weekly':   ivDays=7; break;
+        case 'biweekly': ivDays=14; break;
+        case 'monthly':  ivDays=30.44; break;
+        case 'bimonthly':ivDays=60.88; break;
+        case 'yearly':   ivDays=365.25; break;
+        default: ivDays=0;
+      }
+      if (ivDays > 0 && itemDate <= todayEnd) {
+        const daysElapsed = (todayEnd - itemDate) / msDay;
+        const count = Math.floor(daysElapsed / ivDays) + 1;
+        const res = applyOnce(bal, sav, item, unitAmt * count);
+        bal = res.bal; sav = res.sav;
+      }
+      // always contribute to monthly estimate
+      const m = getMonthlyAmt(item);
+      if (item.type === 'income') mi += m; else me += m;
     }
-    const m = getMonthlyAmt(item);
-    if (item.type === 'income') mi += m; else me += m;
   }
+
   return { balance: Math.round(bal*100)/100, savings: Math.round(sav*100)/100, monthlyIncome: mi, monthlyExpense: me };
 }
 
 function projectBalance(targetDate) {
-  const today  = new Date(); today.setHours(0,0,0,0);
-  const target = new Date(targetDate); target.setHours(0,0,0,0);
-  if (target <= today) return null;
-  const { balance: curBal } = calcBalance();
+  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+  const target     = new Date(targetDate); target.setHours(23,59,59,999);
+  if (target <= todayStart) return null;
+
+  // Start from current calculated balance (which already includes past payments)
+  const { balance: curBal, savings: curSav } = calcBalance();
   let bal = curBal;
+  const msDay = 86400000;
+
   for (const item of appData.items) {
-    if (item.frequency === 'once') continue;
-    const sign = item.type === 'income' ? 1 : -1;
-    const amt  = parseFloat(item.amount) || 0;
-    const msDay = 86400000;
-    let ivDays;
-    switch(item.frequency) {
-      case 'daily':    ivDays=1; break;
-      case 'weekly':   ivDays=7; break;
-      case 'biweekly': ivDays=14; break;
-      case 'monthly':  ivDays=30.44; break;
-      case 'bimonthly':ivDays=60.88; break;
-      case 'yearly':   ivDays=365.25; break;
-      default: ivDays=0;
-    }
-    if (ivDays > 0) {
+    const unitAmt = parseFloat(item.amount) || 0;
+    const sign    = item.type === 'income' ? 1 : -1;
+
+    if (item.frequency === 'once') {
       const itemDate = new Date(item.date); itemDate.setHours(0,0,0,0);
-      const startFrom = itemDate > today ? itemDate : new Date(today.getTime() + msDay);
-      const daysRange = (target - startFrom) / msDay;
-      if (daysRange >= 0) {
-        const count = Math.floor(daysRange / ivDays) + 1;
-        bal += sign * amt * count;
+      // Only add if it falls AFTER today and ON or BEFORE target
+      if (itemDate > todayStart && itemDate <= target) {
+        if (item.installments && item.installments > 1) {
+          bal += sign * unitAmt;
+        } else if (item.type === 'expense' && item.category === 'חיסכון') {
+          bal -= unitAmt; // savings transfer: bal only (sav not tracked in projection)
+        } else if (item.type === 'income' && item.category === 'חיסכון') {
+          bal += unitAmt; // withdraw from savings to checking
+        } else {
+          bal += sign * unitAmt;
+        }
+      }
+      // If already started installments today, add remaining future ones
+      if (item.installments && item.installments > 1) {
+        const alreadyPaid = calcPaidInstallments(item, new Date());
+        if (alreadyPaid > 0 && alreadyPaid < item.installments) {
+          const remaining = item.installments - alreadyPaid;
+          // Each future installment is paid monthly starting next month
+          const firstFutureDate = new Date(item.date);
+          firstFutureDate.setMonth(firstFutureDate.getMonth() + alreadyPaid);
+          firstFutureDate.setHours(0,0,0,0);
+          let count = 0;
+          for (let i = 0; i < remaining; i++) {
+            const d = new Date(firstFutureDate);
+            d.setMonth(d.getMonth() + i);
+            if (d > todayStart && d <= target) count++;
+          }
+          bal += sign * unitAmt * count;
+        }
+      }
+    } else {
+      // Recurring: count future occurrences between tomorrow and target
+      let ivDays;
+      switch(item.frequency) {
+        case 'daily':    ivDays=1; break;
+        case 'weekly':   ivDays=7; break;
+        case 'biweekly': ivDays=14; break;
+        case 'monthly':  ivDays=30.44; break;
+        case 'bimonthly':ivDays=60.88; break;
+        case 'yearly':   ivDays=365.25; break;
+        default: ivDays=0;
+      }
+      if (ivDays > 0) {
+        const itemDate = new Date(item.date); itemDate.setHours(0,0,0,0);
+        const startFrom = itemDate > todayStart
+          ? itemDate
+          : new Date(todayStart.getTime() + msDay);
+        if (startFrom <= target) {
+          const daysRange = (target - startFrom) / msDay;
+          const count = Math.floor(daysRange / ivDays) + 1;
+          if (item.type === 'expense' && item.category === 'חיסכון') {
+            bal -= unitAmt * count;
+          } else if (item.type === 'income' && item.category === 'חיסכון') {
+            bal += unitAmt * count;
+          } else {
+            bal += sign * unitAmt * count;
+          }
+        }
       }
     }
   }
@@ -667,6 +804,7 @@ function renderAll() {
 
 function renderItems() {
   const list = document.getElementById('items-list');
+  const today = new Date(); today.setHours(23,59,59,999);
   const filtered = appData.items.filter(i => currentFilter === 'all' || i.type === currentFilter);
   if (!filtered.length) {
     list.innerHTML = '<div class="empty-hint">אין פריטים עדיין — הוסף הכנסה או הוצאה</div>';
@@ -677,20 +815,40 @@ function renderItems() {
     const amtClass = item.type === 'income' ? 'c-green' : 'c-red';
     const catTag = item.category ? `<span class="item-tag">${esc(item.category)}</span>` : '';
     const recurMeta = item.frequency !== 'once'
-      ? (item.flexibleDate ? ' · תאריך גמיש' : (item.dayOfMonth ? ` · יום ${item.dayOfMonth} לחודש` : ''))
+      ? (item.flexibleDate ? 'תאריך גמיש' : (item.dayOfMonth ? `יום ${item.dayOfMonth} לחודש` : ''))
       : '';
+    // Payment method tags
+    const pmTags = [];
+    if (item.payAuth)     pmTags.push('הרשאה');
+    if (item.payStanding) pmTags.push('הוראת קבע');
+    if (item.payCredit)   pmTags.push('אשראי');
+    const pmHtml = pmTags.map(t => `<span class="item-payment">💳 ${t}</span>`).join('');
+    // Installments info
+    let instHtml = '';
+    if (item.installments && item.installments > 1) {
+      const paid = item.frequency === 'once' ? calcPaidInstallments(item, today) : 0;
+      const remaining = item.installments - paid;
+      const done = remaining <= 0;
+      instHtml = `<span class="item-tag" style="color:${done?'var(--text-dim)':'var(--purple)'}">${done ? '✓ הסתיים' : `${paid}/${item.installments} תשלומים`}</span>`;
+    }
+    // Notes
+    const notesHtml = item.notes ? `<div class="item-notes">📝 ${esc(item.notes)}</div>` : '';
+
     return `<div class="item-card ${item.type}">
       <div class="item-left">
         <div class="item-title">
           <span>${item.type === 'income' ? '💰' : '💸'}</span>
-          <span class="item-name">${esc(item.description)}</span>
+          <span class="item-name">${esc(item.description || (item.category || ''))}</span>
           ${catTag}
+          ${instHtml}
         </div>
         <div class="item-meta">
           <span>${fmtDate(item.date)}</span>
           <span>${FREQ_LABELS[item.frequency] || ''}</span>
-          ${recurMeta ? `<span>${recurMeta.replace(' · ','')}</span>` : ''}
+          ${recurMeta ? `<span>${recurMeta}</span>` : ''}
         </div>
+        ${pmHtml ? `<div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">${pmHtml}</div>` : ''}
+        ${notesHtml}
       </div>
       <div class="item-right">
         <div class="item-amount ${amtClass}">${sign}${fmt(item.amount)}</div>
@@ -710,24 +868,42 @@ function renderFutureWindows() {
     return;
   }
   grid.innerHTML = appData.futureWindows.map(win => {
-    const proj = projectBalance(win.date);
-    const amtHtml = proj !== null
-      ? `<div class="future-amount ${proj >= 0 ? 'c-green' : 'c-red'}">${fmt(proj)}</div><div class="future-sub">יתרה משוערת</div>`
-      : '<div class="future-sub">בחר תאריך עתידי</div>';
+    let body = '';
+    if (win.winType === 'summary') {
+      // Summary by payment method
+      const methods = [
+        { key: 'payAuth',     label: 'הרשאה' },
+        { key: 'payStanding', label: 'הוראת קבע' },
+        { key: 'payCredit',   label: 'אשראי' },
+      ];
+      const rows = methods.map(m => {
+        const total = appData.items
+          .filter(i => i[m.key] && i.type === 'expense')
+          .reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
+        return total > 0 ? `<div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0"><span style="color:var(--text-muted)">${m.label}</span><span class="c-red">${fmt(total)}</span></div>` : '';
+      }).filter(Boolean).join('');
+      body = rows || '<div style="font-size:12px;color:var(--text-dim)">אין נתונים</div>';
+    } else {
+      const proj = projectBalance(win.date);
+      body = proj !== null
+        ? `<div class="future-amount ${proj >= 0 ? 'c-green' : 'c-red'}">${fmt(proj)}</div><div class="future-sub">יתרה משוערת</div>`
+        : '<div class="future-sub">בחר תאריך עתידי</div>';
+    }
     const recurTag = win.recurring ? '<div class="future-recurring-tag">חוזר כל חודש</div>' : '';
+    const typeTag = win.winType === 'summary' ? '<div class="future-recurring-tag" style="color:var(--purple)">📊 סיכום</div>' : '';
     return `<div class="future-card">
       <div class="future-card-head">
         <div>
-          <div class="future-label">${esc(win.label || 'תחזית')}</div>
-          <div class="future-date">${fmtDate(win.date)}</div>
+          <div class="future-label">${esc(win.label || (win.winType==='summary'?'סיכום תשלומים':'תחזית'))}</div>
+          ${win.winType !== 'summary' ? `<div class="future-date">${fmtDate(win.date)}</div>` : ''}
         </div>
         <div style="display:flex;gap:6px">
           <button class="btn-icon c-accent" onclick="editWindow('${win.id}')">✏️</button>
           <button class="btn-icon c-red"    onclick="deleteWindow('${win.id}')">🗑️</button>
         </div>
       </div>
-      ${amtHtml}
-      ${recurTag}
+      ${body}
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">${recurTag}${typeTag}</div>
     </div>`;
   }).join('');
 }
@@ -764,12 +940,17 @@ function openItemModal(id) {
   document.getElementById('f-freq').value   = item ? item.frequency : 'once';
   document.getElementById('f-notes').value  = item ? (item.notes || '') : '';
   document.getElementById('f-day').value    = item ? (item.dayOfMonth || '') : '';
+  document.getElementById('pm-auth').checked     = item ? !!item.payAuth : false;
+  document.getElementById('pm-standing').checked = item ? !!item.payStanding : false;
+  document.getElementById('pm-credit').checked   = item ? !!item.payCredit : false;
+  document.getElementById('f-installments').value = item ? (item.installments || '') : '';
 
   // radio
   const radios = document.querySelectorAll('input[name="flex"]');
   radios.forEach(r => { r.checked = (r.value === (item && item.flexibleDate ? 'flex' : 'fixed')); });
 
   toggleRecurring();
+  toggleInstallments();
   document.getElementById('item-modal').classList.remove('hidden');
 }
 
@@ -801,6 +982,22 @@ function toggleDayField() {
   document.getElementById('day-field').style.display = isFlex ? 'none' : '';
 }
 
+function toggleInstallments() {
+  const isCredit = document.getElementById('pm-credit').checked;
+  document.getElementById('installments-row').style.display = isCredit ? '' : 'none';
+}
+
+let currentWinType = 'forecast';
+function setWinType(type) {
+  currentWinType = type;
+  document.getElementById('wtype-forecast').style.background = type==='forecast' ? '#3d5afe' : 'var(--surface3)';
+  document.getElementById('wtype-forecast').style.color = type==='forecast' ? '#fff' : 'var(--text-muted)';
+  document.getElementById('wtype-summary').style.background = type==='summary' ? '#3d5afe' : 'var(--surface3)';
+  document.getElementById('wtype-summary').style.color = type==='summary' ? '#fff' : 'var(--text-muted)';
+  document.getElementById('w-date-row').style.display = type==='summary' ? 'none' : '';
+  document.getElementById('w-recurring-row').style.display = type==='summary' ? 'none' : '';
+}
+
 function saveItem() {
   const desc   = document.getElementById('f-desc').value.trim();
   const amount = parseFloat(document.getElementById('f-amount').value);
@@ -813,11 +1010,18 @@ function saveItem() {
   const notes     = document.getElementById('f-notes').value.trim();
   const category  = document.getElementById('f-cat').value;
 
+  const payAuth     = document.getElementById('pm-auth').checked;
+  const payStanding = document.getElementById('pm-standing').checked;
+  const payCredit   = document.getElementById('pm-credit').checked;
+  const installments = parseInt(document.getElementById('f-installments').value) || 0;
+
   const item = {
     id: editItemId || String(Date.now()),
     type: currentType, description: desc, category, amount, date,
     frequency: freq, flexibleDate: flexed,
-    dayOfMonth: flexed ? '' : dayOfMonth, notes
+    dayOfMonth: flexed ? '' : dayOfMonth, notes,
+    payAuth, payStanding, payCredit,
+    installments: payCredit && installments > 1 ? installments : 0
   };
 
   if (editItemId) {
@@ -841,10 +1045,11 @@ function editItem(id) { openItemModal(id); }
 function openWinModal(id) {
   editWinId = id || null;
   const win = id ? appData.futureWindows.find(w => w.id === id) : null;
-  document.getElementById('win-modal-title').textContent = id ? 'ערוך חלון תחזית' : 'הוסף חלון תחזית';
-  document.getElementById('w-label').value     = win ? (win.label || '') : '';
-  document.getElementById('w-date').value      = win ? win.date : '';
+  document.getElementById('win-modal-title').textContent = id ? 'ערוך חלון' : 'הוסף חלון';
+  document.getElementById('w-label').value       = win ? (win.label || '') : '';
+  document.getElementById('w-date').value        = win ? (win.date || '') : '';
   document.getElementById('w-recurring').checked = win ? !!win.recurring : false;
+  setWinType(win ? (win.winType || 'forecast') : 'forecast');
   document.getElementById('win-modal').classList.remove('hidden');
 }
 
@@ -854,11 +1059,12 @@ function closeWinModal() {
 
 function saveWindow() {
   const date = document.getElementById('w-date').value;
-  if (!date) return;
+  if (currentWinType === 'forecast' && !date) return;
   const win = {
     id: editWinId || String(Date.now()),
     label: document.getElementById('w-label').value.trim(),
-    date, recurring: document.getElementById('w-recurring').checked
+    winType: currentWinType,
+    date, recurring: currentWinType === 'forecast' ? document.getElementById('w-recurring').checked : false
   };
   if (editWinId) {
     appData.futureWindows = appData.futureWindows.map(w => w.id === editWinId ? win : w);
